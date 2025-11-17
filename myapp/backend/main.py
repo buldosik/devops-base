@@ -2,6 +2,7 @@ import os
 import psycopg2
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -33,3 +34,31 @@ def db_check():
         return {"db": "ok"}
     except Exception as e:
         return JSONResponse(status_code=500, content={"db": "error", "detail": str(e)})
+
+
+class Item(BaseModel):
+    name: str
+
+
+@app.post("/items")
+def create_item(item: Item):
+    conn = get_db_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO items (name) VALUES (%s) RETURNING id;",
+        (item.name,),
+    )
+    new_id = cur.fetchone()[0]
+    conn.commit()
+    conn.close()
+    return {"id": new_id, "name": item.name}
+
+
+@app.get("/items")
+def get_items():
+    conn = get_db_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id, name FROM items;")
+    rows = cur.fetchall()
+    conn.close()
+    return [{"id": r[0], "name": r[1]} for r in rows]
