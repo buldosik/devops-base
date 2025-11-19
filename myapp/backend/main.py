@@ -9,11 +9,11 @@ app = FastAPI()
 
 def get_db_conn():
     conn = psycopg2.connect(
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
+        dbname=os.getenv("POSTGRES_DB", "appdb"),
+        user=os.getenv("POSTGRES_USER", "appuser"),
+        password=os.getenv("POSTGRES_PASSWORD", "apppass"),
+        host=os.getenv("POSTGRES_HOST", "devops-postgres"),
+        port=int(os.getenv("POSTGRES_PORT", "5432")),
     )
     return conn
 
@@ -62,3 +62,4 @@ def get_items():
     rows = cur.fetchall()
     conn.close()
     return [{"id": r[0], "name": r[1]} for r in rows]
+    
