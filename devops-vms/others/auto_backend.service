@@ -1,0 +1,25 @@
+[Unit]
+Description=DevOps Backend Docker Container
+Requires=docker.service devops-postgres.service
+After=network-online.target docker.service devops-postgres.service
+Wants=network-online.target
+
+[Service]
+Restart=always
+RestartSec=5
+
+ExecStartPre=-/usr/bin/docker rm backend
+
+# pull??
+# ExecStartPre=/usr/bin/docker pull buldosik/backend:latest
+
+ExecStart=/usr/bin/docker run --name backend \
+    --env-file /srv/backend/.env \
+    -p 8000:8000 \
+    -v /srv/backend/data:/app/data \
+    buldosik/backend:latest
+
+ExecStop=/usr/bin/docker stop backend
+
+[Install]
+WantedBy=multi-user.target
