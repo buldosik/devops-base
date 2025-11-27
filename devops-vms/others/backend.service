@@ -1,0 +1,30 @@
+[Unit]
+Description=DevOps Backend Docker Container
+Requires=docker.service devops-postgres.service
+After=network-online.target docker.service devops-postgres.service
+Wants=network-online.target
+
+[Service]
+Restart=always
+RestartSec=5
+
+ExecStartPre=/bin/sh -c '/usr/bin/docker network inspect devops-net >/dev/null 2>&1 || /usr/bin/docker network create devops-net'
+
+ExecStartPre=/usr/bin/docker pull buldosik/devops-backend:1.1
+
+ExecStartPre=-/usr/bin/docker rm -f backend
+
+ExecStart=/usr/bin/docker run --name backend \
+  --network devops-net \
+  -e POSTGRES_DB=appdb \
+  -e POSTGRES_USER=user \
+  -e POSTGRES_PASSWORD=pass \
+  -e POSTGRES_HOST=devops-postgres \
+  -e POSTGRES_PORT=5432 \
+  -p 8000:8000 \
+  buldosik/devops-backend:1.1
+
+ExecStop=/usr/bin/docker stop backend
+
+[Install]
+WantedBy=multi-user.target

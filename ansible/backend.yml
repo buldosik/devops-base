@@ -1,0 +1,23 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Copy backend systemd unit
+      copy:
+        src: /vagrant/others/backend.service
+        dest: /etc/systemd/system/backend.service
+        owner: root
+        group: root
+        mode: '0644'
+        remote_src: yes
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start backend service
+      systemd:
+        name: backend.service
+        enabled: yes
+        state: started
