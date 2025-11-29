@@ -1,9 +1,28 @@
 #!/usr/bin/env bash
 set -e
 
-KEY_SRC="/mnt/e/_Projects/_Devops/test-project/devops-vms/.vagrant/machines/default/virtualbox/private_key"
-KEY_DST="$HOME/.ssh/vagrant_key"
+DEFAULTPATH="/mnt/e/_Projects/_Devops/test-project"
 
-cp "$KEY_SRC" "$KEY_DST"
-chmod 600 "$KEY_DST"
-echo "Vagrant key refreshed."
+SOURCES=(
+  "devops-vms/.vagrant/machines/default/virtualbox/private_key"
+  "devops-vms-2/.vagrant/machines/default/virtualbox/private_key"
+)
+
+DESTS=(
+  "$HOME/.ssh/vagrant_key1"
+  "$HOME/.ssh/vagrant_key2"
+)
+
+for i in "${!SOURCES[@]}"; do
+  SRC="$DEFAULTPATH/${SOURCES[$i]}"
+  DST="${DESTS[$i]}"
+
+  if [[ ! -f "$SRC" ]]; then
+    echo "Skip: no key at $SRC"
+    continue
+  fi
+
+  cp "$SRC" "$DST"
+  chmod 600 "$DST"
+  echo "Vagrant key refreshed: $DST"
+done
