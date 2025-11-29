@@ -1,0 +1,33 @@
+- name: Install Docker package
+  apt:
+    name: "{{ docker_package_name }}"
+    state: "{{ docker_package_state }}"
+    update_cache: yes
+
+- name: Enable and start Docker service
+  systemd:
+    name: "{{ docker_service_name }}"
+    enabled: yes
+    state: started
+
+- name: Add users to docker group
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: yes
+  loop: "{{ docker_users }}"
+  when: docker_users | length > 0
+
+
+- name: Ensure docker networks exist
+  shell: |
+    docker network inspect {{ item.name }} >/dev/null 2>&1 || docker network create {{ item.name }}
+  loop: "{{ docker_networks }}"
+  when: docker_networks | length > 0
+
+  
+
+- name: Pull docker images
+  command: docker pull {{ item.name }}:{{ item.tag | default('latest') }}
+  loop: "{{ docker_images }}"
+  when: docker_images | length > 0

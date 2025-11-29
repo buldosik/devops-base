@@ -1,0 +1,16 @@
+docker_package_name: docker.io
+docker_package_state: present
+
+docker_service_name: docker
+
+docker_users: []
+
+docker_networks:
+  - name: devops-net
+
+docker_images: []
+# docker_images:
+#   - name: buldosik/devops-backend
+#     tag: latest
+#   - name: postgres
+#     tag: "16"

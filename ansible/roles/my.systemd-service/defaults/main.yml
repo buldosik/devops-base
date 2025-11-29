@@ -1,0 +1,20 @@
+# defaults/main.yml
+systemd_services: {}
+# systemd_services:
+#   backend:
+#     name: backend
+#     description: "Devops backend container"
+#     after: "network-online.target docker.service"
+#     wants: "network-online.target docker.service"
+#     type: simple
+#     user: root
+#     working_directory: /srv/backend
+#     exec_start: "/usr/bin/docker run ..."
+#     restart: always
+#     restart_sec: 5
+#     wanted_by: "multi-user.target"
+#     enabled: true
+#     state: started
+#     environment:
+#       DB_HOST: devops-postgres
+#       DB_USER: devops

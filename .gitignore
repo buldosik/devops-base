@@ -218,3 +218,4 @@ __marimo__/
 .tar
 .vagrant
 myapp/backend/backend.tar
+ansible/roles/cimon.systemd-service

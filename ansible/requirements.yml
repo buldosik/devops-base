@@ -1,0 +1,5 @@
+# requirements.yml
+- src: https://github.com/cimon-io/ansible-role-systemd-service.git
+  scm: git
+  version: master
+  name: cimon.systemd-service

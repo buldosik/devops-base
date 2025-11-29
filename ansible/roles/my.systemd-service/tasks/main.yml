@@ -1,0 +1,32 @@
+---
+- name: Ensure systemd services are defined
+  assert:
+    that: systemd_services is mapping
+    fail_msg: "systemd_services must be a dict"
+
+- name: Ensure working directories exist
+  file:
+    path: "{{ item.value.working_directory }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ systemd_services | dict2items }}"
+  when: item.value.working_directory is defined
+
+- name: Create systemd unit files
+  template:
+    src: service.j2
+    dest: "/etc/systemd/system/{{ (item.value.name | default(item.key)) }}.service"
+    mode: "0644"
+  loop: "{{ systemd_services | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  notify: Reload systemd
+
+- name: Enable / start services
+  systemd:
+    name: "{{ item.value.name | default(item.key) }}"
+    enabled: "{{ item.value.enabled | default(true) }}"
+    state: "{{ item.value.state | default('started') }}"
+  loop: "{{ systemd_services | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"

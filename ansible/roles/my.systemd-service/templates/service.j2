@@ -1,0 +1,54 @@
+[Unit]
+Description={{ item.value.description | default(item.value.name | default(item.key)) }}
+
+{% if item.value.after is defined %}
+After={{ item.value.after }}
+{% endif %}
+
+{% if item.value.wants is defined %}
+Wants={{ item.value.wants }}
+{% endif %}
+
+{% if item.value.requires is defined %}
+Requires={{ item.value.requires }}
+{% endif %}
+
+[Service]
+Type={{ item.value.type | default("simple") }}
+
+{% if item.value.user is defined %}
+User={{ item.value.user }}
+{% endif %}
+
+{% if item.value.group is defined %}
+Group={{ item.value.group }}
+{% endif %}
+
+{% if item.value.working_directory is defined %}
+WorkingDirectory={{ item.value.working_directory }}
+{% endif %}
+
+{% if item.value.environment is defined %}
+{% for k, v in item.value.environment.items() %}
+Environment="{{ k }}={{ v }}"
+{% endfor %}
+{% endif %}
+
+{% if item.value.exec_start is defined %}
+ExecStart={{ item.value.exec_start }}
+{% endif %}
+
+{% if item.value.exec_stop is defined %}
+ExecStop={{ item.value.exec_stop }}
+{% endif %}
+
+{% if item.value.restart is defined %}
+Restart={{ item.value.restart }}
+{% endif %}
+
+{% if item.value.restart_sec is defined %}
+RestartSec={{ item.value.restart_sec }}
+{% endif %}
+
+[Install]
+WantedBy={{ item.value.wanted_by | default("multi-user.target") }}
