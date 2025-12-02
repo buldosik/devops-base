@@ -5,12 +5,14 @@ DEFAULTPATH="/mnt/e/_Projects/_Devops/test-project"
 
 SOURCES=(
   "devops-vms/.vagrant/machines/default/virtualbox/private_key"
-  "devops-vms-2/.vagrant/machines/default/virtualbox/private_key"
+  "devops-vms-back/.vagrant/machines/default/virtualbox/private_key"
+  "devops-vms-db/.vagrant/machines/default/virtualbox/private_key"
 )
 
 DESTS=(
-  "$HOME/.ssh/vagrant_key1"
-  "$HOME/.ssh/vagrant_key2"
+  "$HOME/.ssh/vagrant_key"
+  "$HOME/.ssh/vagrant_key_back"
+  "$HOME/.ssh/vagrant_key_db"
 )
 
 for i in "${!SOURCES[@]}"; do
