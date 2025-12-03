@@ -1,0 +1,21 @@
+#cloud-config
+hostname: devops-vm
+manage_etc_hosts: true
+
+users:
+  - name: ubuntu
+    gecos: DevOps User
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: "$6$rounds=4096$abcdefghijklmnopqrstuv$HjZTfc1GDbkI9YkioYF1Yu2vbfNdNiQhLfFoXxulDYGA9rbhO6FkLuQ8UlfXnfUotkgUpyHbkDH41nFs268Rz."
+    ssh_authorized_keys: []
+
+ssh_pwauth: true
+
+package_update: true
+packages:
+  - qemu-guest-agent
+
+runcmd:
+  - [ sh, -c, "systemctl enable --now qemu-guest-agent || true" ]

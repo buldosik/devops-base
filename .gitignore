@@ -219,3 +219,8 @@ __marimo__/
 .vagrant
 myapp/backend/backend.tar
 ansible/roles/cimon.systemd-service
+*.box
+.terraform*
+terraform.*
+.txt
+*.iso
