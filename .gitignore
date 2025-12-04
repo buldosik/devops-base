@@ -224,3 +224,4 @@ ansible/roles/cimon.systemd-service
 terraform.*
 .txt
 *.iso
+group_vars
