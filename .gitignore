@@ -225,3 +225,4 @@ terraform.*
 .txt
 *.iso
 group_vars
+*.conf
