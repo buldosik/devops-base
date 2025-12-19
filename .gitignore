@@ -226,3 +226,4 @@ terraform.*
 *.iso
 group_vars
 *.conf
+*.crt

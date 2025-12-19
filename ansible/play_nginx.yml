@@ -1,0 +1,111 @@
+---
+- name: Nginx on back (HTTPS reverse proxy)
+  hosts: back
+  become: true
+
+  # wsl_ip вычисляется на контрол-ноде (там, где запускаешь ansible).
+  # Если запускаешь ansible из WSL — ок.
+  vars:
+    wsl_ip: "{{ lookup('pipe', \"ip -4 addr show eth0 | awk '/inet /{print $2}' | cut -d/ -f1\") }}"
+    cert_dir: /srv/nginx/certs
+    conf_dir: /srv/nginx/conf.d
+
+  pre_tasks:
+    - name: Ensure nginx dirs exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ conf_dir }}"
+        - "{{ cert_dir }}"
+
+    # ВАЖНО: чтобы гарантированно обновить сертификат после прерванных apply/старой генерации
+    - name: Remove existing cert/key to regenerate (dev)
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ cert_dir }}/cert.pem"
+        - "{{ cert_dir }}/key.pem"
+        - "{{ cert_dir }}/openssl.cnf"
+
+    - name: Generate self-signed cert with SAN (WSL IP)
+      shell: |
+        set -euo pipefail
+        cat > {{ cert_dir }}/openssl.cnf <<'EOF'
+        [req]
+        default_bits       = 2048
+        prompt             = no
+        default_md         = sha256
+        x509_extensions    = v3_req
+        distinguished_name = dn
+
+        [dn]
+        CN = devops-back
+
+        [v3_req]
+        keyUsage = keyEncipherment, dataEncipherment, digitalSignature
+        extendedKeyUsage = serverAuth
+        subjectAltName = @alt_names
+
+          [alt_names]
+          IP.1 = {{ ansible_host }}
+
+        EOF
+
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+          -keyout {{ cert_dir }}/key.pem \
+          -out {{ cert_dir }}/cert.pem \
+          -config {{ cert_dir }}/openssl.cnf
+      args:
+        executable: /bin/bash
+
+    - name: Upload nginx vhost
+      copy:
+        dest: "{{ conf_dir }}/app.conf"
+        mode: "0644"
+        content: |
+          server {
+            listen 80;
+            server_name _;
+            return 301 https://$host$request_uri;
+          }
+
+          server {
+            listen 443 ssl;
+            server_name _;
+
+            ssl_certificate     /etc/nginx/certs/cert.pem;
+            ssl_certificate_key /etc/nginx/certs/key.pem;
+
+            location / {
+              proxy_pass http://backend:{{ backend_port }};
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto https;
+            }
+          }
+
+  roles:
+    - role: my.systemd-service
+      vars:
+        systemd_services:
+          devops-nginx:
+            name: devops-nginx
+            description: "Nginx reverse proxy (TLS) container"
+            after: "network-online.target docker.service backend.service"
+            wants: "network-online.target docker.service"
+            type: simple
+            exec_start: >
+              /usr/bin/docker run --rm --name devops-nginx
+              --network devops-net
+              -p 80:80
+              -p 443:443
+              -v /srv/nginx/conf.d:/etc/nginx/conf.d:ro
+              -v /srv/nginx/certs:/etc/nginx/certs:ro
+              nginx:alpine
+            restart: always
+            enabled: true
+            wanted_by: "multi-user.target"

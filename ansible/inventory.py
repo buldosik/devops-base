@@ -33,7 +33,6 @@ def build_inventory(tf_output):
 
     back_ip = first_ip("back")
     db_ip   = first_ip("db")
-    dev_ip  = first_ip("dev")
 
     inventory = {
         "back": {
@@ -42,10 +41,6 @@ def build_inventory(tf_output):
         },
         "db": {
             "hosts": [db_ip],
-            "vars": {"ansible_user": "devops"},
-        },
-        "dev": {
-            "hosts": [dev_ip],
             "vars": {"ansible_user": "devops"},
         },
         "_meta": {
