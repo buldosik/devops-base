@@ -1,3 +1,7 @@
+locals {
+  back_ip = try(module.vm.public_ips["back"][0], "0.0.0.0")
+}
+
 resource "local_file" "nginx_config" {
   content = <<-EOT
 server {
@@ -16,7 +20,7 @@ server {
     ssl_certificate_key /etc/nginx/certs/key.pem;
 
     location / {
-        proxy_pass http://${module.vm["back"].public_ips[0]}:8000/;
+        proxy_pass http://${local.back_ip}:8000/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
