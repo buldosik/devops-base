@@ -20,9 +20,13 @@ server {
     ssl_certificate_key /etc/nginx/certs/key.pem;
 
     location / {
-        proxy_pass http://${local.back_ip}:8000/;
+        proxy_pass http://${local.back_ip}:443/;
+        proxy_ssl_server_name on;
+
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
     }
 }
 

@@ -1,5 +1,5 @@
 [Unit]
-Description={{ item.value.description | default(item.value.name | default(item.key)) }}
+Description={{ item.value.description | default(item.value.name | default(item.key)) }} (%i)
 
 {% if item.value.after is defined %}
 After={{ item.value.after }}

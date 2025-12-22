@@ -3,6 +3,7 @@ import psycopg2
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import socket
 
 app = FastAPI()
 
@@ -16,6 +17,11 @@ def get_db_conn():
         port=int(os.getenv("POSTGRES_PORT", "5432")),
     )
     return conn
+
+
+@app.get("/whoami")
+def whoami():
+    return {"instance": socket.gethostname()}
 
 
 @app.get("/health")

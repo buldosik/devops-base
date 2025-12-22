@@ -27,6 +27,9 @@
     name: "{{ item.value.name | default(item.key) }}"
     enabled: "{{ item.value.enabled | default(true) }}"
     state: "{{ item.value.state | default('started') }}"
+    daemon_reload: true
   loop: "{{ systemd_services | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
+  when: "'@' not in (item.value.name | default(item.key))"
+
