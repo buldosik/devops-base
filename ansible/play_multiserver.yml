@@ -65,6 +65,11 @@
             exec_start: >
               /usr/bin/docker run --rm --name backend-%i
               --network devops-net
+              --label traefik.enable=true
+              --label 'traefik.http.routers.app.rule=PathPrefix("/")'
+              --label traefik.http.routers.app.entrypoints=websecure
+              --label traefik.http.routers.app.tls=true
+              --label traefik.http.services.app.loadbalancer.server.port=8000
               -e POSTGRES_DB={{ postgres_db }}
               -e POSTGRES_USER={{ postgres_user }}
               -e POSTGRES_PASSWORD={{ postgres_password }}
