@@ -47,7 +47,7 @@
             enabled: true
             wanted_by: "multi-user.target"
 
-- name: Backend nodes (only backend service)
+- name: Backend nodes (two backend instances)
   hosts: back
   become: true
 
@@ -55,23 +55,38 @@
     - role: my.systemd-service
       vars:
         systemd_services:
-          backend:
-            name: backend
-            description: "Devops backend container"
+          backend@:
+            name: "backend@"
+            description: "Devops backend container instance"
             after: "network-online.target docker.service devops-postgres.service"
             wants: "network-online.target docker.service"
             type: simple
             working_directory: /srv/backend
             exec_start: >
-              /usr/bin/docker run --rm --name backend
+              /usr/bin/docker run --rm --name backend-%i
               --network devops-net
+              --label traefik.enable=true
+              --label 'traefik.http.routers.app.rule=PathPrefix("/")'
+              --label traefik.http.routers.app.entrypoints=websecure
+              --label traefik.http.routers.app.tls=true
+              --label traefik.http.services.app.loadbalancer.server.port=8000
               -e POSTGRES_DB={{ postgres_db }}
               -e POSTGRES_USER={{ postgres_user }}
               -e POSTGRES_PASSWORD={{ postgres_password }}
               -e POSTGRES_HOST={{ db_host }}
               -e POSTGRES_PORT={{ postgres_port }}
-              -p {{ backend_port }}:{{ backend_port }}
               {{ backend_image }}
+            exec_stop: >
+              /usr/bin/docker stop backend-%i
             restart: always
-            enabled: true
+            enabled: false
             wanted_by: "multi-user.target"
+
+  post_tasks:
+    - name: Enable + start backend instances
+      systemd:
+        name: "backend@{{ item }}"
+        enabled: true
+        state: started
+        daemon_reload: true
+      loop: [1, 2]

@@ -1,0 +1,96 @@
+- name: Traefik on back (HTTPS self-signed)
+  hosts: back
+  become: true
+  vars:
+    traefik_dir: /srv/traefik
+    cert_dir: /srv/traefik/certs
+    dyn_dir: /srv/traefik/dynamic
+
+  tasks:
+    - name: Ensure traefik dirs exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ traefik_dir }}"
+        - "{{ cert_dir }}"
+        - "{{ dyn_dir }}"
+
+    - name: Regenerate cert/key (dev)
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ cert_dir }}/cert.pem"
+        - "{{ cert_dir }}/key.pem"
+        - "{{ cert_dir }}/openssl.cnf"
+
+    - name: Generate self-signed cert with SAN (IP)
+      shell: |
+        set -euo pipefail
+        cat > {{ cert_dir }}/openssl.cnf <<'EOF'
+        [req]
+        default_bits       = 2048
+        prompt             = no
+        default_md         = sha256
+        x509_extensions    = v3_req
+        distinguished_name = dn
+
+        [dn]
+        CN = devops-back
+
+        [v3_req]
+        keyUsage = keyEncipherment, dataEncipherment, digitalSignature
+        extendedKeyUsage = serverAuth
+        subjectAltName = @alt_names
+
+        [alt_names]
+        IP.1 = {{ ansible_host }}
+        EOF
+
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+          -keyout {{ cert_dir }}/key.pem \
+          -out {{ cert_dir }}/cert.pem \
+          -config {{ cert_dir }}/openssl.cnf
+      args:
+        executable: /bin/bash
+
+    - name: Upload traefik static config
+      copy:
+        src: files/traefik/traefik.yml
+        dest: "{{ traefik_dir }}/traefik.yml"
+        mode: "0644"
+
+    - name: Upload traefik dynamic TLS config
+      copy:
+        dest: "{{ dyn_dir }}/tls.yml"
+        mode: "0644"
+        content: |
+          tls:
+            certificates:
+              - certFile: /etc/traefik/certs/cert.pem
+                keyFile: /etc/traefik/certs/key.pem
+
+  roles:
+    - role: my.systemd-service
+      vars:
+        systemd_services:
+          devops-traefik:
+            name: devops-traefik
+            description: "Traefik reverse proxy (HTTPS self-signed)"
+            after: "network-online.target docker.service"
+            wants: "network-online.target docker.service"
+            type: simple
+            exec_start: >
+              /usr/bin/docker run --rm --name devops-traefik
+              --network devops-net
+              -p 80:80 -p 443:443
+              -v /srv/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+              -v /srv/traefik/dynamic:/etc/traefik/dynamic:ro
+              -v /srv/traefik/certs:/etc/traefik/certs:ro
+              -v /var/run/docker.sock:/var/run/docker.sock:ro
+              traefik:v3.0
+            restart: always
+            enabled: true
+            wanted_by: "multi-user.target"
