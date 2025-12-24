@@ -227,3 +227,6 @@ terraform.*
 group_vars
 *.conf
 *.crt
+
+# GitHub Actions self-hosted runner
+actions-runner/
