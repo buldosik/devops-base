@@ -1,0 +1,21 @@
+name: test-runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: [self-hosted, wsl, docker]
+    steps:
+      - name: Who am I
+        run: |
+          whoami
+          uname -a
+
+      - name: Workspace check
+        run: |
+          pwd
+          ls -la
+
+      - name: Docker check
+        run: docker version
