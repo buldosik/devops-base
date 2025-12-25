@@ -1,0 +1,38 @@
+name: build-and-push-backend
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "myapp/backend/**"
+      - ".github/workflows/docker-backend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  docker:
+    runs-on: [self-hosted, wsl, docker]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: myapp/backend
+          file: myapp/backend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/devops-base-backend:latest
+            ghcr.io/${{ github.repository_owner }}/devops-base-backend:${{ github.sha }}
