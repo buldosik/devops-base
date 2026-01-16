@@ -18,7 +18,7 @@ on:
 
 jobs:
   terraform:
-    runs-on: self-hosted, wsl, host
+    runs-on: [self-hosted, wsl, host]
     defaults:
       run:
         shell: bash
