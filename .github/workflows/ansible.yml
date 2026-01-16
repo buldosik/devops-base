@@ -30,7 +30,7 @@ on:
 
 jobs:
   ansible:
-    runs-on: self-hosted
+    runs-on: [self-hosted, wsl, host]
     defaults:
       run:
         shell: bash
