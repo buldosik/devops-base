@@ -40,6 +40,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Terraform init (for inventory)
+        working-directory: devops-vm-terraform-libvirt
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+        run: terraform init -input=false
+
       #- name: Ensure python3 + ansible installed
       #  run: |
       #    sudo apt-get update
