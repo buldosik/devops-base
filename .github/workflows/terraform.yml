@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tf_dir:
-        description: "Path to terraform project"
+        description: "Terraform directory"
         required: true
         default: "devops-vm-terraform-libvirt"
       action:
@@ -28,11 +28,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show versions
-        run: |
-          terraform version
+      - name: Terraform version
+        run: terraform version
 
-      - name: Init
+      - name: Init (Terraform Cloud backend)
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
         run: terraform init -input=false
 
       - name: Select workspace (optional)
@@ -45,12 +46,18 @@ jobs:
 
       - name: Plan
         if: ${{ inputs.action == 'plan' }}
-        run: terraform plan
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+        run: terraform plan -lock-timeout=5m
 
       - name: Apply
         if: ${{ inputs.action == 'apply' }}
-        run: terraform apply -auto-approve
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+        run: terraform apply -auto-approve -lock-timeout=5m
 
       - name: Destroy
         if: ${{ inputs.action == 'destroy' }}
-        run: terraform destroy -auto-approve
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+        run: terraform destroy -auto-approve -lock-timeout=5m
