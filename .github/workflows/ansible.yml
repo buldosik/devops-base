@@ -63,8 +63,8 @@ jobs:
         env:
           TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
         run: |
-          chmod +x ansible/scripts/update_known_hosts.py
-          ansible/scripts/update_known_hosts.py
+          chmod +x scripts/update_known_hosts.py
+          scripts/update_known_hosts.py
 
       - name: Run playbook
         run: |
