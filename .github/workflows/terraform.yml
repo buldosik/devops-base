@@ -1,0 +1,56 @@
+name: Terraform
+
+on:
+  workflow_dispatch:
+    inputs:
+      tf_dir:
+        description: "Path to terraform project"
+        required: true
+        default: "devops-vm-terraform-libvirt"
+      action:
+        description: "plan | apply | destroy"
+        required: true
+        default: "plan"
+      workspace:
+        description: "Terraform workspace (optional)"
+        required: false
+        default: ""
+
+jobs:
+  terraform:
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.tf_dir }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show versions
+        run: |
+          terraform version
+
+      - name: Init
+        run: terraform init -input=false
+
+      - name: Select workspace (optional)
+        if: ${{ inputs.workspace != '' }}
+        run: |
+          terraform workspace select "${{ inputs.workspace }}" || terraform workspace new "${{ inputs.workspace }}"
+
+      - name: Validate
+        run: terraform validate
+
+      - name: Plan
+        if: ${{ inputs.action == 'plan' }}
+        run: terraform plan
+
+      - name: Apply
+        if: ${{ inputs.action == 'apply' }}
+        run: terraform apply -auto-approve
+
+      - name: Destroy
+        if: ${{ inputs.action == 'destroy' }}
+        run: terraform destroy -auto-approve

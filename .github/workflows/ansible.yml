@@ -1,0 +1,58 @@
+name: Ansible
+
+on:
+  workflow_dispatch:
+    inputs:
+      ansible_dir:
+        description: "Path to ansible folder"
+        required: true
+        default: "ansible"
+      playbook:
+        description: "Playbook filename"
+        required: true
+        default: "play_multiserver.yml"
+      inventory:
+        description: "Inventory file"
+        required: true
+        default: "inventory.py"
+      limit:
+        description: "Optional: --limit"
+        required: false
+        default: ""
+      tags:
+        description: "Optional: --tags"
+        required: false
+        default: ""
+      extra_vars:
+        description: "Optional: extra vars, e.g. key1=val1 key2=val2"
+        required: false
+        default: ""
+
+jobs:
+  ansible:
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.ansible_dir }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Ansible (if missing)
+        run: |
+          if ! command -v ansible-playbook >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ansible
+          fi
+          ansible --version
+
+      - name: Run playbook
+        run: |
+          args=()
+          if [ -n "${{ inputs.limit }}" ]; then args+=(--limit "${{ inputs.limit }}"); fi
+          if [ -n "${{ inputs.tags }}" ]; then args+=(--tags "${{ inputs.tags }}"); fi
+          if [ -n "${{ inputs.extra_vars }}" ]; then args+=(--extra-vars "${{ inputs.extra_vars }}"); fi
+
+          ansible-playbook -i "./${{ inputs.inventory }}" "${{ inputs.playbook }}" "${args[@]}"

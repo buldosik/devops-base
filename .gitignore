@@ -221,7 +221,7 @@ myapp/backend/backend.tar
 ansible/roles/cimon.systemd-service
 *.box
 .terraform*
-terraform.*
+devops-vm-terraform-libvirt/terraform.*
 .txt
 *.iso
 group_vars
