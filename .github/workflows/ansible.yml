@@ -59,6 +59,12 @@ jobs:
       - name: Debug inventory
         run: ansible-inventory -i "./${{ inputs.inventory }}" --list
 
+      - name: Update SSH known_hosts (from terraform outputs)
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+        run: |
+          chmod +x ansible/scripts/update_known_hosts.py
+          ansible/scripts/update_known_hosts.py
 
       - name: Run playbook
         run: |
