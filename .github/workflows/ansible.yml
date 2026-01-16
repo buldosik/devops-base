@@ -40,13 +40,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Ansible (if missing)
+      - name: Ensure python3 + ansible installed
         run: |
-          if ! command -v ansible-playbook >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y ansible
-          fi
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-venv python3-pip ansible
           ansible --version
+          python3 --version
+
+      - name: Make inventory executable
+        run: chmod +x "${{ inputs.inventory }}"
+
+      - name: Debug inventory
+        run: ansible-inventory -i "./${{ inputs.inventory }}" --list
+
 
       - name: Run playbook
         run: |
@@ -55,4 +61,4 @@ jobs:
           if [ -n "${{ inputs.tags }}" ]; then args+=(--tags "${{ inputs.tags }}"); fi
           if [ -n "${{ inputs.extra_vars }}" ]; then args+=(--extra-vars "${{ inputs.extra_vars }}"); fi
 
-          ansible-playbook -i "./${{ inputs.inventory }}" "${{ inputs.playbook }}" "${args[@]}"
+          ansible-playbook -i "${{ inputs.inventory }}" "${{ inputs.playbook }}" "${args[@]}"
