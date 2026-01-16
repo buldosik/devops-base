@@ -1,16 +1,16 @@
 variable "vms" {
-  description = "Конфиг для всех виртуальных машин"
+  description = "Config for vms"
   type = map(object({
-    hostname   = string
-    memory     = number
-    vcpu       = number
+    hostname   = string 
     private_ip = string
+    memory     = optional(number, 2048)
+    vcpu       = optional(number, 2)
   }))
 }
 
-# опционально, чтобы не хардкодить путь к ключу
+# Optional
 variable "ssh_key_path" {
-  description = "Путь к публичному SSH ключу"
+  description = "Path to public SSH"
   type        = string
   default     = "/home/uadmin/.ssh/id_ed25519.pub"
 }

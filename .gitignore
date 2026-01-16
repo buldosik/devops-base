@@ -216,17 +216,19 @@ __marimo__/
 .streamlit/secrets.toml
 
 .tar
-.vagrant
+# Myapp build files
 myapp/backend/backend.tar
-ansible/roles/cimon.systemd-service
-*.box
+
+# Ansible roles
+ansible/group_vars
+
+# Terraform files
 .terraform*
-devops-vm-terraform-libvirt/terraform.*
-.txt
-*.iso
-group_vars
-*.conf
-*.crt
+terraform.tfstate
+terraform.tfstate.backup
 
 # GitHub Actions self-hosted runner
 actions-runner/
+
+# Other
+.txt
