@@ -220,7 +220,7 @@ __marimo__/
 myapp/backend/backend.tar
 
 # Ansible roles
-ansible/group_vars
+# ansible/group_vars
 
 # Terraform files
 .terraform*

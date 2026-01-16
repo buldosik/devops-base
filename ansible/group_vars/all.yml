@@ -1,0 +1,21 @@
+# group_vars/all.yml
+docker_users:
+  - devops
+
+docker_networks:
+  - name: devops-net
+
+docker_images:
+  - { name: buldosik/devops-backend, tag: "1.2" }
+  - { name: postgres,               tag: "16" }
+
+postgres_db: appdb
+postgres_user: user
+postgres_password: pass
+
+pg_data_dir: /srv/postgres/data
+pg_init_dir: /srv/postgres/init
+
+backend_image: buldosik/devops-backend:1.2
+backend_port: 8000
+postgres_port: 5432
