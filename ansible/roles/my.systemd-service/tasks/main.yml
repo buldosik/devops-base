@@ -20,7 +20,9 @@
   loop: "{{ systemd_services | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  notify: Reload systemd
+  notify: 
+    - Reload systemd
+    - Restart templated instances
 
 - name: Enable / start services
   systemd:

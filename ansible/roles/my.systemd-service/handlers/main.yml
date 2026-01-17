@@ -2,3 +2,9 @@
 - name: Reload systemd
   systemd:
     daemon_reload: yes
+
+- name: Restart templated instances
+  ansible.builtin.systemd:
+    name: "backend@{{ item }}"
+    state: restarted
+  loop: [1, 2]
