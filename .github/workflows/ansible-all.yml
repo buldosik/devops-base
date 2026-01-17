@@ -1,4 +1,4 @@
-name: Ansible Proxy
+name: Ansible All
 
 on:
   workflow_dispatch:
@@ -8,6 +8,16 @@ on:
       extra_vars: { required: false, default: "" }
 
 jobs:
+  app:
+    uses: ./.github/workflows/_ansible_run.yml
+    with:
+      playbook: play_multiserver.yml
+      limit: ${{ inputs.limit }}
+      tags: ${{ inputs.tags }}
+      extra_vars: ${{ inputs.extra_vars }}
+    secrets:
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+
   proxy:
     uses: ./.github/workflows/_ansible_run.yml
     with:
