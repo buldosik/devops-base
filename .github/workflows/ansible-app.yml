@@ -1,4 +1,4 @@
-name: Ansible
+name: Ansible-app
 
 on:
   workflow_dispatch:

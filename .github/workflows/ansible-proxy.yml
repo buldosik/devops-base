@@ -1,4 +1,4 @@
-name: Ansible
+name: Ansible-proxy
 
 on:
   workflow_dispatch:
