@@ -7,7 +7,7 @@ import socket
 
 app = FastAPI()
 
-#some small update
+#some small update #2
 def get_db_conn():
     conn = psycopg2.connect(
         dbname=os.getenv("POSTGRES_DB", "appdb"),
