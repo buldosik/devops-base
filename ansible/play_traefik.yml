@@ -61,16 +61,13 @@
         src: files/traefik/traefik.yml
         dest: "{{ traefik_dir }}/traefik.yml"
         mode: "0644"
+        src: files/traefik/dynamic/tls.yml
 
     - name: Upload traefik dynamic TLS config
       copy:
         dest: "{{ dyn_dir }}/tls.yml"
         mode: "0644"
-        content: |
-          tls:
-            certificates:
-              - certFile: /etc/traefik/certs/cert.pem
-                keyFile: /etc/traefik/certs/key.pem
+        src: files/traefik/dynamic/tls.yml
 
   roles:
     - role: my.systemd-service
