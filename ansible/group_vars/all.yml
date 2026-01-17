@@ -9,6 +9,8 @@ docker_images:
   - { name: buldosik/devops-backend, tag: "1.2" }
   - { name: postgres,               tag: "16" }
 
+db_host: "{{ groups['db'][0] }}"
+
 postgres_db: appdb
 postgres_user: user
 postgres_password: pass
