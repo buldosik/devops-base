@@ -6,6 +6,7 @@ on:
       limit: { required: false, default: "" }
       tags: { required: false, default: "" }
       extra_vars: { required: false, default: "" }
+
   workflow_run:
     workflows: ["build-and-push-backend"]
     types: [completed]
@@ -13,11 +14,14 @@ on:
 
 jobs:
   app:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     uses: ./.github/workflows/_ansible_run.yml
     with:
       playbook: play_multiserver.yml
-      limit: ${{ inputs.limit }}
-      tags: ${{ inputs.tags }}
-      extra_vars: ${{ inputs.extra_vars }}
+      limit: ${{ inputs.limit || '' }}
+      tags: ${{ inputs.tags || '' }}
+      extra_vars: >-
+        ${{ inputs.extra_vars || '' }}
+        ${{ github.event_name == 'workflow_run' && format(' backend_image_tag={0}', github.event.workflow_run.head_sha) || '' }}
     secrets:
       TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}

@@ -25,7 +25,22 @@
   loop: "{{ docker_networks }}"
   when: docker_networks | length > 0
 
-  
+
+# (опционально) Login to GHCR, если пакет приватный
+- name: Login to GHCR
+  community.docker.docker_login:
+    registry_url: "{{ ghcr_registry | default('ghcr.io') }}"
+    username: "{{ ghcr_username }}"
+    password: "{{ ghcr_token }}"
+  when:
+    - ghcr_username is defined
+    - ghcr_token is defined
+
+# Pull backend image (важно: именно backend_image, который ты используешь в systemd unit)
+- name: Pull backend image
+  command: docker pull {{ backend_image }}
+  when: backend_image is defined and backend_image | length > 0
+
 
 - name: Pull docker images
   command: docker pull {{ item.name }}:{{ item.tag | default('latest') }}
