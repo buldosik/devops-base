@@ -85,7 +85,7 @@
               --network devops-net
               -p 80:80 -p 443:443
               --label "traefik.enable=true"
-              --label "traefik.http.routers.traefik.rule=Host('traefik.local') && (PathPrefix('/api') || PathPrefix('/dashboard'))"
+              --label "traefik.http.routers.traefik.rule=Host(`traefik.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
               --label "traefik.http.routers.traefik.entrypoints=websecure"
               --label "traefik.http.routers.traefik.tls=true"
               --label "traefik.http.routers.traefik.service=api@internal"

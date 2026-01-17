@@ -6,6 +6,10 @@ on:
       limit: { required: false, default: "" }
       tags: { required: false, default: "" }
       extra_vars: { required: false, default: "" }
+  workflow_run:
+    workflows: ["build-and-push-backend"]
+    types: [completed]
+    branches: ["main"]
 
 jobs:
   app:
