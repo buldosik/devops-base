@@ -84,6 +84,11 @@
               /usr/bin/docker run --rm --name devops-traefik
               --network devops-net
               -p 80:80 -p 443:443
+              --label "traefik.enable=true"
+              --label "traefik.http.routers.traefik.rule=Host('traefik.local') && (PathPrefix('/api') || PathPrefix('/dashboard'))"
+              --label "traefik.http.routers.traefik.entrypoints=websecure"
+              --label "traefik.http.routers.traefik.tls=true"
+              --label "traefik.http.routers.traefik.service=api@internal"
               -v /srv/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
               -v /srv/traefik/dynamic:/etc/traefik/dynamic:ro
               -v /srv/traefik/certs:/etc/traefik/certs:ro
