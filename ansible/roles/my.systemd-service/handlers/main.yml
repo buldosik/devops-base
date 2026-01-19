@@ -8,3 +8,4 @@
     name: "backend@{{ item }}"
     state: restarted
   loop: [1, 2]
+  when: "'back' in group_names"
