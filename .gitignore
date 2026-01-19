@@ -232,5 +232,5 @@ actions-runner/
 
 # Other
 .txt
-/devops.conf
+/devops.*
 /old_dev.conf
