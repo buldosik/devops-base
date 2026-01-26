@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-init
-  namespace: back
+  namespace: dev
 data:
   items.sql: |
     CREATE TABLE IF NOT EXISTS items (

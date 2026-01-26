@@ -234,3 +234,6 @@ actions-runner/
 .txt
 /devops.*
 /old_dev.conf
+
+# k8s
+k8s/1

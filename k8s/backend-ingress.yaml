@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: backend
-  namespace: back
+  namespace: dev
 spec:
   ingressClassName: nginx
   rules:
